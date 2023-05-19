@@ -1,0 +1,1 @@
+7bd2c657aa6e07558f9e4b092fbe0953ec55be5f516391d7e323cc3fc7accf1e  business_contract.wasm

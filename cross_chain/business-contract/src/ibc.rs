@@ -19,7 +19,7 @@ pub fn open_init(
     // know what it is yet
     //
     // return None means we don't want to set the version to a different value
-    Ok(())
+    Ok(None)
 }
 
 pub fn open_try(
@@ -31,7 +31,7 @@ pub fn open_try(
 
     assert_unique_channel(deps.storage, &channel.connection_id)?;
 
-    Ok(())
+    Ok(None)
 }
 
 pub fn open_connect(
