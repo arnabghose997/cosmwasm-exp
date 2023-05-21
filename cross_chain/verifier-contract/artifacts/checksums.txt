@@ -1,1 +1,1 @@
-2af176475ce2825660dddbada434c50eeaa508e9d234493510883cd36b11a481  verifier_contract.wasm
+e9455fff16f22d5bbb23a326707c193633fe83b4b9b5095a876aaa0777aa8ecd  verifier_contract.wasm

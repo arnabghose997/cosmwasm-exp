@@ -1,17 +1,14 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    Binary, Deps, DepsMut, Env, IbcBasicResponse, IbcChannelCloseMsg,
-    IbcChannelConnectMsg, IbcChannelOpenMsg, IbcChannelOpenResponse,
-    IbcPacketReceiveMsg, IbcReceiveResponse, MessageInfo, Response,
+    Binary, Deps, DepsMut, Env, MessageInfo, Response,
     StdResult, to_binary,
 };
 use cw2::set_contract_version;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, QueryRandomNumResponse};
-use crate::host::{handle, packet_receive};
-use crate::ibc::{open_connect, open_init, open_try, close};
+use crate::host::{handle};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:verifier-contract";
@@ -61,50 +58,6 @@ pub fn query(_deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 
 pub fn return_random_num() -> StdResult<Binary> {
     to_binary(&QueryRandomNumResponse { result: 2356 })
-}
-
-#[entry_point]
-pub fn ibc_channel_open(
-    deps: DepsMut,
-    _env: Env,
-    msg: IbcChannelOpenMsg,
-) -> Result<IbcChannelOpenResponse, ContractError> {
-    match msg {
-        IbcChannelOpenMsg::OpenInit {
-            channel,
-        } => open_init(deps, channel),
-        IbcChannelOpenMsg::OpenTry {
-            channel,
-            counterparty_version,
-        } => open_try(deps, channel, counterparty_version),
-    }
-}
-
-#[entry_point]
-pub fn ibc_channel_connect(
-    deps: DepsMut,
-    _env: Env,
-    msg: IbcChannelConnectMsg,
-) -> Result<IbcBasicResponse, ContractError> {
-    open_connect(deps, msg.channel(), msg.counterparty_version())
-}
-
-#[entry_point]
-pub fn ibc_channel_close(
-    _deps: DepsMut,
-    _env: Env,
-    msg: IbcChannelCloseMsg,
-) -> Result<IbcBasicResponse, ContractError> {
-    close(msg)
-}
-
-#[entry_point]
-pub fn ibc_packet_receive(
-    deps: DepsMut,
-    env: Env,
-    msg: IbcPacketReceiveMsg,
-) -> Result<IbcReceiveResponse, ContractError> {
-    packet_receive(deps, env, msg.packet)
 }
 
 #[cfg(test)]

@@ -110,7 +110,7 @@ impl Handler {
                 
                 Action::Query(query_req) => {
                     let query_res = deps.querier.raw_query(&to_binary(&query_req)?);
-
+                    
                     if let SystemResult::Ok(inner) = query_res {
                         if let ContractResult::Ok(query_res_bin) = inner {
                             self.results.push(ActionResult::Query {

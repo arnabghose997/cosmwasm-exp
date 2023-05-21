@@ -1,10 +1,12 @@
 use cosmwasm_std::{
-    DepsMut, IbcBasicResponse, IbcChannel, IbcChannelCloseMsg, IbcChannelOpenResponse, IbcOrder,
-    Storage,
+    entry_point, DepsMut, IbcBasicResponse, IbcChannel, IbcChannelCloseMsg, IbcChannelOpenResponse, IbcOrder,
+    Storage, IbcChannelConnectMsg, IbcChannelOpenMsg, IbcPacketReceiveMsg, IbcReceiveResponse, Env,
+    IbcPacketAckMsg, IbcPacketTimeoutMsg
 };
 
 use crate::ics999::{ORDER, VERSION};
 use crate::{error::ContractError, state::ACTIVE_CHANNELS};
+use crate::host::{packet_receive};
 
 pub fn open_init(
     deps: DepsMut,
@@ -115,3 +117,68 @@ pub fn close(msg: IbcChannelCloseMsg) -> Result<IbcBasicResponse, ContractError>
         } => Ok(IbcBasicResponse::new()),
     }
 }
+
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn ibc_channel_open(
+    deps: DepsMut,
+    _env: Env,
+    msg: IbcChannelOpenMsg,
+) -> Result<IbcChannelOpenResponse, ContractError> {
+    match msg {
+        IbcChannelOpenMsg::OpenInit {
+            channel,
+        } => open_init(deps, channel),
+        IbcChannelOpenMsg::OpenTry {
+            channel,
+            counterparty_version,
+        } => open_try(deps, channel, counterparty_version),
+    }
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn ibc_channel_connect(
+    deps: DepsMut,
+    _env: Env,
+    msg: IbcChannelConnectMsg,
+) -> Result<IbcBasicResponse, ContractError> {
+    open_connect(deps, msg.channel(), msg.counterparty_version())
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn ibc_channel_close(
+    _deps: DepsMut,
+    _env: Env,
+    msg: IbcChannelCloseMsg,
+) -> Result<IbcBasicResponse, ContractError> {
+    close(msg)
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn ibc_packet_receive(
+    deps: DepsMut,
+    env: Env,
+    msg: IbcPacketReceiveMsg,
+) -> Result<IbcReceiveResponse, ContractError> {
+    packet_receive(deps, env, msg.packet)
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn ibc_packet_ack(
+    _deps: DepsMut,
+    _env: Env,
+    _msg: IbcPacketAckMsg,
+) -> Result<IbcBasicResponse, ContractError> {
+    Ok(IbcBasicResponse::new())
+    
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn ibc_packet_timeout(
+    _deps: DepsMut,
+    _env: Env,
+    _msg: IbcPacketTimeoutMsg,
+) -> Result<IbcBasicResponse, ContractError> {
+    Ok(IbcBasicResponse::new())
+}
+
